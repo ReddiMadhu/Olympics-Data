@@ -95,3 +95,50 @@ GROUP BY athletes.name
 ORDER BY gold_medals DESC;
 
 
+
+#--4 in each year which player has won maximum gold medal . Write a query to print year,player name 
+#--and no of golds won in that year . In case of a tie print comma separated player names.
+
+WITH years_gold_medals_names AS (
+    SELECT 
+        ae.year,
+        ath.name,
+        COUNT(*) AS gold_medals
+    FROM 
+        athlete_events ae
+    JOIN 
+        athletes ath ON ae.athlete_id = ath.id
+    WHERE 
+        ae.medal = 'Gold'
+    GROUP BY 
+        ae.year, ath.name
+),
+max_medals_year AS (
+    SELECT 
+        year, 
+        MAX(gold_medals) AS max_gold
+    FROM 
+        years_gold_medals_names
+    GROUP BY 
+        year
+),
+top_players_each_year AS (
+    SELECT 
+        ygmn.year,
+        ygmn.name,
+        ygmn.gold_medals
+    FROM 
+        years_gold_medals_names ygmn
+    JOIN 
+        max_medals_year mgy ON ygmn.year = mgy.year AND ygmn.gold_medals = mgy.max_gold
+)
+SELECT 
+    year,
+    GROUP_CONCAT(name ORDER BY name SEPARATOR ', ') AS player_names,
+    gold_medals AS golds_won
+FROM 
+    top_players_each_year
+GROUP BY 
+    year
+ORDER BY 
+    year;
