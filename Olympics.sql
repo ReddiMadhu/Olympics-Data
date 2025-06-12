@@ -224,3 +224,40 @@ HAVING
     COUNT(DISTINCT CASE WHEN ae.medal = 'Silver' THEN 1 END) > 0 AND
     COUNT(DISTINCT CASE WHEN ae.medal = 'Bronze' THEN 1 END) > 0;
 */
+
+
+
+#--8 find players who have won gold medals in consecutive 3 summer olympics in the same event . Consider only olympics 2000 onwards. 
+#--Assume summer olympics happens every 4 year starting 2000. print player name and event name.
+WITH gold_wins AS (
+  SELECT
+    ae.athlete_id,
+    ath.name,
+    ae.event,
+    ae.year
+  FROM athlete_events ae
+  JOIN athletes ath 
+    ON ae.athlete_id = ath.id
+  WHERE 
+    ae.medal  = 'Gold'
+    AND ae.season = 'Summer'
+    AND ae.year >= 2000
+),
+sequenced AS (
+  SELECT
+    athlete_id,
+    name,
+    event,
+    year,
+    LEAD(year, 1) OVER (PARTITION BY athlete_id, event ORDER BY year) AS next_year,
+    LEAD(year, 2) OVER (PARTITION BY athlete_id, event ORDER BY year) AS next2_year
+  FROM gold_wins
+)
+SELECT DISTINCT
+  name,
+  event
+FROM sequenced
+WHERE 
+  next_year  = year + 4
+  AND next2_year = year + 8
+ORDER BY name, event;
