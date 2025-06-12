@@ -184,3 +184,43 @@ WHERE ae.medal = 'Gold'
       WHERE ae2.medal = 'Gold'
         AND ae2.season = 'Winter'
   );
+
+
+
+
+#--7 find players who won gold, silver and bronze medal in a single olympics. print player name along with year.
+SELECT DISTINCT g.name, g.year
+FROM 
+    (SELECT a.id, a.name, ae.year
+     FROM athletes a
+     JOIN athlete_events ae ON ae.athlete_id = a.id
+     WHERE ae.medal = 'Gold') g
+JOIN 
+    (SELECT a.id, a.name, ae.year
+     FROM athletes a
+     JOIN athlete_events ae ON ae.athlete_id = a.id
+     WHERE ae.medal = 'Silver') s
+  ON g.id = s.id AND g.year = s.year
+JOIN 
+    (SELECT a.id, a.name, ae.year
+     FROM athletes a
+     JOIN athlete_events ae ON ae.athlete_id = a.id
+     WHERE ae.medal = 'Bronze') b
+  ON g.id = b.id AND g.year = b.year;
+/*
+SELECT 
+    a.name,
+    ae.year
+FROM 
+    athletes a
+JOIN 
+    athlete_events ae ON ae.athlete_id = a.id
+WHERE 
+    ae.medal IN ('Gold', 'Silver', 'Bronze')
+GROUP BY 
+    a.name, ae.year
+HAVING 
+    COUNT(DISTINCT CASE WHEN ae.medal = 'Gold' THEN 1 END) > 0 AND
+    COUNT(DISTINCT CASE WHEN ae.medal = 'Silver' THEN 1 END) > 0 AND
+    COUNT(DISTINCT CASE WHEN ae.medal = 'Bronze' THEN 1 END) > 0;
+*/
