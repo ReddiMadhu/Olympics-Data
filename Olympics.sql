@@ -69,3 +69,29 @@ JOIN
     ranked_silver_years rsy ON tts.team = rsy.team
 WHERE 
     rsy.rnk = 1;
+
+--3 which player has won maximum gold medals  amongst the players 
+--which have won only gold medal (never won silver or bronze) over the years
+WITH gold_only_medal AS (
+    SELECT DISTINCT athlete_id
+    FROM athlete_events
+    WHERE medal = 'Gold'
+      AND athlete_id NOT IN (
+          SELECT DISTINCT athlete_id
+          FROM athlete_events
+          WHERE medal IN ('Silver', 'Bronze')
+      )
+)
+
+SELECT athletes.name,
+       COUNT(athlete_events.medal) AS gold_medals
+FROM athletes
+JOIN athlete_events ON athlete_events.athlete_id = athletes.id
+WHERE athlete_events.medal = 'Gold'
+  AND athlete_events.athlete_id IN (
+      SELECT athlete_id FROM gold_only_medal
+  )
+GROUP BY athletes.name
+ORDER BY gold_medals DESC;
+
+
