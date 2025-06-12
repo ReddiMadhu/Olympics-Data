@@ -142,3 +142,28 @@ GROUP BY
     year
 ORDER BY 
     year;
+
+
+#--5 in which event and year India has won its first gold medal,first silver medal and first bronze medal
+#--print 3 columns medal,year,sport
+WITH medal_ranked_data AS (
+    SELECT 
+        ae.medal,
+        ae.year,
+        ae.sport,
+        RANK() OVER (
+            PARTITION BY ae.medal 
+            ORDER BY ae.year
+        ) AS ranker
+    FROM athlete_events ae
+    JOIN athletes a ON ae.athlete_id = a.id
+    WHERE a.team = 'India' 
+      AND ae.medal IS NOT NULL
+)
+
+SELECT DISTINCT 
+    medal, 
+    year, 
+    sport
+FROM medal_ranked_data
+WHERE ranker = 1;
