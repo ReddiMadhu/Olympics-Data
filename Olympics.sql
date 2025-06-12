@@ -25,6 +25,7 @@ LIMIT 1;
 
 
 
+
 #--2 for each team print total silver medals and year in which they won maximum silver medal..output 3 columns
 -- team,total_silver_medals, year_of_max_silver
 WITH team_year_silver AS (
@@ -167,3 +168,19 @@ SELECT DISTINCT
     sport
 FROM medal_ranked_data
 WHERE ranker = 1;
+
+
+
+#--6 find players who won gold medal in summer and winter olympics both.
+SELECT DISTINCT 
+    ath.name
+FROM athlete_events ae
+JOIN athletes ath ON ae.athlete_id = ath.id
+WHERE ae.medal = 'Gold'
+  AND ae.season = 'Summer'
+  AND ae.athlete_id IN (
+      SELECT ae2.athlete_id
+      FROM athlete_events ae2
+      WHERE ae2.medal = 'Gold'
+        AND ae2.season = 'Winter'
+  );
